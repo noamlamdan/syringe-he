@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#f8eb45">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>איך מזרק עובד | Zizzle Inventions</title>
+<meta name="copyright" content="© 2026 Zizzlelab. כל הזכויות שמורות.">
+<meta name="description" content="מקבלים זריקה? הכירו את ההמצאה הקטנה והמדהימה שמאחוריה. צפו, הרכיבו ותרגלו עם ייטי.">
+<!-- what shows when the link is shared: the picture is made by tools/build_preview.py -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Zizzle Inventions">
+<meta property="og:title" content="איך מזרק עובד">
+<meta property="og:description" content="מקבלים זריקה? הכירו את ההמצאה הקטנה והמדהימה שמאחוריה. צפו, הרכיבו ותרגלו עם ייטי.">
+<meta property="og:image" content="preview.png">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="מזרק ורוד מחייך ולידו המילים: מקבלים זריקה? הכירו את ההמצאה הקטנה והמדהימה שמאחוריה.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="איך מזרק עובד">
+<meta name="twitter:description" content="מקבלים זריקה? הכירו את ההמצאה הקטנה והמדהימה שמאחוריה. צפו, הרכיבו ותרגלו עם ייטי.">
+<meta name="twitter:image" content="preview.png">
+<link rel="icon" href="art/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Varela+Round&display=swap" rel="stylesheet">
+<style>
+  html, body { margin: 0; height: 100%; overflow: hidden; background: #f8eb45; overscroll-behavior: none; }
+  body { position: fixed; inset: 0; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent; }
+
+  /* Three layers, bottom to top: the movie, the game (see-through where it draws nothing), words and links.
+     The page code sizes #under and #over to the wide stage and turns them when the phone is held upright. */
+  #under, #over { position: absolute; left: 0; top: 0; transform-origin: 0 0; overflow: hidden; }
+  #over { pointer-events: none; }
+  #app, #app canvas { position: absolute; inset: 0; display: block; touch-action: none; }
+
+  /* shown until the art is ready */
+  #wait { position: absolute; inset: 0; display: grid; place-items: center; transition: opacity .3s; }
+  #wait i { width: 56px; height: 56px; border-radius: 50%; background: #ef289d; animation: bob .7s ease-in-out infinite alternate; }
+  @keyframes bob { from { transform: translateY(-16px) scale(.96, 1.04); } to { transform: translateY(16px) scale(1.06, .94); } }
+  #wait.gone { opacity: 0; pointer-events: none; }
+
+  /* the explainer movie fills the whole screen. It is rendered on the page's own yellow (tools/render_intro.mjs),
+     so on screens of another shape the picture simply runs out into the page. */
+  #under.movie { background: #f8eb45; }
+  #movie { position: absolute; inset: 0; width: 100%; height: 100%; display: none; object-fit: contain; background: #f8eb45; }
+  #movie.on { display: block; }
+
+  /* the words being spoken. Hidden until the CC button turns them on (or a line cannot be heard). */
+  #cap {
+    position: absolute; left: 50%; top: calc(12px * var(--z, 1)); transform: translateX(-50%);
+    width: max-content; max-width: min(62%, calc(560px * var(--z, 1))); box-sizing: border-box; padding: calc(10px * var(--z, 1)) calc(22px * var(--z, 1)); border-radius: calc(20px * var(--z, 1)); text-align: center;
+    background: #fff; color: #17694f; box-shadow: 0 5px 0 rgba(60, 37, 65, .16);
+    font: 700 calc(16px * var(--z, 1))/1.3 'Varela Round', ui-rounded, system-ui, sans-serif; opacity: 0; transition: opacity .25s;
+  }
+  #cap { text-wrap: balance; }
+  #cap.on { opacity: 1; }
+  #over:not(.cc) #cap { opacity: 0; }
+  .short #cap { padding: 8px 16px; font-size: 15px; }
+
+  /* the CC button: a round switch for the words, drawn like the home button beside it (plum, with the same rim
+     and shine); it turns pink while the words are on. On the home screen it sits in the home button's place. */
+  #cc {
+    all: unset; position: absolute; box-sizing: border-box; pointer-events: auto; cursor: pointer;
+    left: calc(var(--ox, 0px) + var(--u, .43px) * 140); top: calc(var(--oy, 0px) + var(--u, .43px) * 32);
+    width: calc(var(--u, .43px) * 92); height: calc(var(--u, .43px) * 92); border-radius: 50%;
+    font-size: 0; color: transparent;      /* the letters are drawn (below), so they sit dead centre whatever the font does */
+    background: #3c2541 url("art/cc_icon.png") center / 100% 100% no-repeat;
+    box-shadow: 0 calc(var(--u, .43px) * 5.5) 0 #271629;
+    transition: background-color .15s, box-shadow .15s, transform .1s;
+  }
+  #cc::before {      /* the same little shine as the drawn buttons */
+    content: ''; position: absolute; inset: 11%; border-radius: 50%; box-sizing: border-box;
+    border: calc(var(--u, .43px) * 4) solid transparent; border-top-color: rgba(255, 255, 255, .5); transform: rotate(-47deg);
+  }
+  #cc::after { content: ''; position: absolute; inset: -8px; }      /* a more forgiving touch than it looks */
+  #cc:active { transform: translateY(calc(var(--u, .43px) * 4)); box-shadow: 0 calc(var(--u, .43px) * 1.5) 0 #271629; }
+  #cc[aria-pressed="true"] { background-color: #ef4d8d; box-shadow: 0 calc(var(--u, .43px) * 5.5) 0 #c83473; }
+  #cc[aria-pressed="true"]:active { box-shadow: 0 calc(var(--u, .43px) * 1.5) 0 #c83473; }
+  #cc.nudge { animation: ccNudge .5s ease-in-out 2; }
+  @keyframes ccNudge { 50% { transform: scale(1.16); } }
+  #over[data-screen="hub"] #cc { left: calc(var(--ox, 0px) + var(--u, .43px) * 32); }
+
+  /* the opening screen's words for grown-ups: what this is, and who helped make it. Laid out like the share
+     picture: plum words straight on the yellow beside the syringe, so the pink play button is the one bright
+     thing to press. The page code sets where it starts (just right of the syringe) and --u, the size of one
+     stage unit, so the words keep step with the drawing; the play button sits in the empty .go square. */
+  #opener {
+    position: absolute; left: 41%; top: 46%; width: 55%; transform: translateY(-50%); box-sizing: border-box; --u: .43px;
+    text-align: right; color: #3c2541; font-family: 'Varela Round', ui-rounded, system-ui, sans-serif;
+  }
+  /* the words arrive one after another: the question, the sentence, (the play button pops,) then the two points */
+  #opener .hook, #opener .what, #opener .who li { opacity: 0; transform: translateY(12px); transition: opacity .25s ease, transform 0s linear .25s; }
+  #opener.on .hook, #opener.on .what, #opener.on .who li {
+    opacity: 1; transform: none;
+    transition: opacity .7s ease var(--d), transform .8s cubic-bezier(.22, 1, .36, 1) var(--d);
+  }
+  #opener .hook { --d: .25s; }
+  #opener .what { --d: .85s; }
+  #opener .who li:nth-child(1) { --d: 1.9s; }
+  #opener .who li:nth-child(2) { --d: 2.4s; }
+  #opener .hook { margin: 0; font-size: clamp(27px, calc(var(--u) * 88), 100px); line-height: 1.1; font-weight: 700; }
+  #opener .what { margin: clamp(5px, calc(var(--u) * 16), 28px) 0 0; max-width: 29em; font-size: clamp(14px, calc(var(--u) * 35), 40px); line-height: 1.36; font-weight: 700; text-wrap: balance; }
+  #opener .row { display: flex; align-items: center; gap: clamp(18px, calc(var(--u) * 54), 90px); margin-top: clamp(18px, calc(var(--u) * 60), 100px); }
+  #opener .go { flex: none; width: calc(var(--u) * 192); height: calc(var(--u) * 206); }
+  #opener .who {      /* straight on the yellow, like the rest of the words: no box */
+    list-style: none; margin: 0; padding: 0; min-width: 0; max-width: calc(var(--u) * 700); box-sizing: border-box; text-wrap: pretty;
+    display: grid; gap: .8em;
+    font-size: clamp(12px, calc(var(--u) * 29), 33px); line-height: 1.32; font-weight: 700; color: rgba(60, 37, 65, .88);
+  }
+  #opener .who li { display: grid; grid-template-columns: 2.5em 1fr; gap: .75em; align-items: center; }
+  #opener .who li::before { content: ''; width: 2.5em; height: 2.5em; border-radius: 50%; background: center / 100% no-repeat; }
+  /* who helped: a medical cross for the nurse and the therapist, a graduation cap for the university research */
+  #opener .who li:nth-child(1)::before { background-image: url("art/who_cross.png"); }
+  #opener .who li:nth-child(2)::before { background-image: url("art/who_cap.png"); }
+
+  /* along the bottom of the home screen, in the middle: who made this, and a quiet link to the tips for grown-ups */
+  #foot {
+    position: absolute; left: 50%; bottom: calc(24px * var(--z, 1)); transform: translateX(-50%); width: max-content;
+    display: flex; align-items: center; gap: calc(16px * var(--z, 1)); white-space: nowrap;
+    opacity: 0; transition: opacity .4s ease .5s;
+  }
+  #foot.on { opacity: 1; }
+  /* the copyright note, small, in the bottom left corner of the home screen. If the screen is too narrow for it beside
+     the footer, the footer moves over a little; if even that does not fit, the note goes in one line under the footer. */
+  #legal { position: absolute; left: calc(16px * var(--z, 1)); bottom: calc(37px * var(--z, 1)); max-width: calc(260px * var(--z, 1)); margin: 0; text-align: left; white-space: nowrap;
+    font: 700 calc(9.5px * var(--z, 1))/1.3 'Varela Round', ui-rounded, system-ui, sans-serif; color: rgba(60, 37, 65, .6); opacity: 0; transition: opacity .4s ease .5s; }
+  #legal .l1 { display: block; }
+  #over.legal-under #legal { left: 50%; bottom: calc(7px * var(--z, 1)); transform: translateX(-50%); max-width: 96%; white-space: nowrap; text-align: center; }
+  #over.legal-under #legal .l1 { display: inline; }
+  #over.legal-under #foot { bottom: calc(26px * var(--z, 1)); }
+  #foot.on + #legal { opacity: 1; }
+  #foot .by {
+    display: flex; align-items: center; gap: calc(8px * var(--z, 1)); padding: calc(7px * var(--z, 1)) calc(14px * var(--z, 1)) calc(7px * var(--z, 1)) calc(15px * var(--z, 1)); border-radius: 999px; background: #fff;
+    font: 700 calc(12.5px * var(--z, 1))/1 'Varela Round', ui-rounded, system-ui, sans-serif; color: rgba(60, 37, 65, .72);
+  }
+  #foot img { height: calc(24px * var(--z, 1)); width: auto; display: block; }
+  #foot button {
+    all: unset; cursor: pointer; padding: calc(8px * var(--z, 1)) 2px; pointer-events: none;
+    font: 700 calc(12.5px * var(--z, 1))/1 'Varela Round', ui-rounded, system-ui, sans-serif; color: #3c2541;
+    text-decoration: underline; text-decoration-color: rgba(60, 37, 65, .55); text-underline-offset: 3px;
+  }
+  #foot.on button { pointer-events: auto; }
+
+  /* the grown-ups note: one tip at a time, each with a small calm picture. Swipe, touch, or use the dots and arrows. */
+  #tips { position: absolute; inset: 0; display: grid; place-items: center; background: rgba(255, 244, 205, .82); pointer-events: auto; }      /* a pale veil: the page stays sunny behind the card */
+  #tips[hidden] { display: none; }
+  #tips .card {
+    position: relative; box-sizing: border-box; width: min(calc(88% / min(var(--z, 1), 1.4)), 680px); padding: 18px 0 12px; border-radius: 28px;
+    transform: scale(min(var(--z, 1), 1.4));      /* drawn a little larger on big screens */
+    background: #fff; color: #3c2541; font: 500 16.5px/1.45 'Varela Round', ui-rounded, system-ui, sans-serif; overflow: hidden;
+    box-shadow: 0 8px 0 rgba(60, 37, 65, .13);
+  }
+  #tips .head { margin: 0 26px 4px 60px; font-size: 12.5px; font-weight: 700; letter-spacing: .02em; color: rgba(60, 37, 65, .58); }
+  #tips .view { overflow: hidden; touch-action: none; cursor: grab; }
+  #tips .track { display: flex; align-items: center; transition: transform .38s cubic-bezier(.22, 1, .36, 1); }
+  #tips .tip { flex: 0 0 100%; box-sizing: border-box; display: flex; align-items: center; gap: 22px; padding: 10px 26px 12px 30px; }
+  #tips .pic { flex: none; width: 148px; height: 148px; border-radius: 50%; background: #c3ebe6; animation: tipCalm 5.5s ease-in-out infinite; }
+  #tips .pic svg { display: block; width: 100%; height: 100%; }
+  #tips .pic.pink { background: #fbdce6; }
+  #tips .pic.sun { background: #ffe89a; }
+  #tips .spin { transform-origin: 60px 54px; animation: tipSpin 9s linear infinite; }
+  @keyframes tipCalm { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.06); } }      /* as slow as a calm breath */
+  @keyframes tipSpin { to { transform: rotate(360deg); } }
+  #tips h2 { margin: 0 0 7px; font-size: 22px; line-height: 1.22; color: #17694f; text-wrap: balance; }
+  #tips .tip p { margin: 0; text-wrap: pretty; }
+  #tips .tip p + p { margin-top: 6px; }
+  #tips .tip .fine { font-size: 13.5px; line-height: 1.4; color: rgba(60, 37, 65, .78); }
+  #tips .tip .legal { margin-top: 9px; font-size: 10.5px; line-height: 1.35; color: rgba(60, 37, 65, .6); }      /* small print */
+  #tips .nav { display: flex; align-items: center; justify-content: center; gap: 14px; margin-top: 2px; }
+  #tips .dots { display: flex; gap: 2px; }
+  #tips .dots button { all: unset; cursor: pointer; padding: 9px 6px; }
+  #tips .dots i { display: block; width: 9px; height: 9px; border-radius: 50%; background: rgba(60, 37, 65, .2); transition: background .2s, transform .2s; }
+  #tips .dots .on i { background: #ef289d; transform: scale(1.3); }
+  #tips .arrow { all: unset; cursor: pointer; width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center;
+    font: 700 22px/1 system-ui, sans-serif; color: #3c2541; background: rgba(60, 37, 65, .08); transition: opacity .2s; }
+  #tips .arrow:disabled { opacity: .25; cursor: default; }
+  #tips .x { all: unset; position: absolute; left: 12px; top: 10px; width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center;
+    cursor: pointer; font: 700 24px/1 system-ui, sans-serif; color: #fff; background: #3c2541; z-index: 1; }
+  .short #tips .card { padding: 13px 0 8px; font-size: 15px; }
+  .short #tips .tip { gap: 18px; padding: 6px 22px 8px 26px; }
+  .short #tips .pic { width: 122px; height: 122px; }
+  .short #tips h2 { font-size: 19px; margin-bottom: 5px; }
+  .short #tips .tip .fine { font-size: 12.5px; }
+  @media (prefers-reduced-motion: reduce) { #tips .pic, #tips .spin { animation: none; } #tips .track { transition: none; } }
+
+  .short #foot { bottom: 16px; gap: 14px; }
+  .short #legal { bottom: 26px; font-size: 9px; }
+  .short #foot .by { padding: 6px 13px 6px 12px; gap: 7px; font-size: 12px; }
+  .short #foot img { height: 20px; }
+  .short #foot button { font-size: 12px; }
+</style>
+</head>
+<body>
+  <div id="under">
+    <video id="movie" src="media/explainer_he.mp4" poster="media/poster_v2.jpg" playsinline webkit-playsinline preload="auto"></video>
+  </div>
+  <div id="app"></div>
+  <div id="over">
+    <div id="cap" aria-live="polite"></div>
+    <button id="cc" type="button" aria-pressed="false" aria-label="הצגת המילים שנאמרות">CC</button>
+    <div id="opener">
+      <h1 class="hook">מקבלים זריקה?</h1>
+      <p class="what">אנחנו כאן כדי לעזור לילדים להכיר המצאה מדהימה ולהפחית חרדה, בדרך שמבוססת על מחקר.</p>
+      <div class="row">
+        <span class="go"></span>
+        <ul class="who">
+          <li>פותח בשיתוף אנשי מקצוע מתחום הרפואה</li>
+          <li>מבוסס על מחקר ועל שיטת CARD מאוניברסיטת טורונטו</li>
+        </ul>
+      </div>
+    </div>
+    <div id="foot">
+      <span class="by">נוצר בסקרנות על ידי <img src="art/zizzlelab.png" alt="Zizzlelab"></span>
+      <button id="tipsOpen" type="button">טיפים למבוגרים</button>
+    </div>
+    <p id="legal"><span class="l1">© 2026 Zizzlelab. כל הזכויות שמורות.</span></p>
+    <div id="tips" hidden>
+      <div class="card" role="dialog" aria-label="טיפים למבוגרים">
+        <button class="x" type="button" aria-label="סגירה">&times;</button>
+        <p class="head">איך לעזור לילדים עם זריקה</p>
+        <div class="view"><div class="track">
+          <section class="tip">
+            <div class="pic"><svg viewBox="0 0 120 120" aria-hidden="true"><rect x="22" y="30" width="76" height="50" rx="22" fill="#fff"/><path d="M42 76l-5 18 20-16z" fill="#fff"/><circle cx="42" cy="55" r="7.5" fill="#39a49c"/><circle cx="60" cy="55" r="7.5" fill="#ef289d"/><circle cx="78" cy="55" r="7.5" fill="#f58a1f"/></svg></div>
+            <div><h2>אמרו בפשטות מה יקרה.</h2><p>„קודם מגבון קר, אחר כך דקירה קטנה ומהירה, וזהו, נגמר.”</p></div>
+          </section>
+          <section class="tip">
+            <div class="pic pink"><svg viewBox="0 0 120 120" aria-hidden="true"><circle cx="60" cy="60" r="37" fill="#fff"/><path d="M41 56q7 7 14 0M65 56q7 7 14 0" stroke="#3c2541" stroke-width="4.5" fill="none" stroke-linecap="round"/><path d="M51 71q9 8 18 0" stroke="#3c2541" stroke-width="4.5" fill="none" stroke-linecap="round"/><circle cx="38" cy="70" r="6" fill="#f294cf"/><circle cx="82" cy="70" r="6" fill="#f294cf"/></svg></div>
+            <div><h2>בלי „אין מה לדאוג” ובלי „זה לא יכאב”.</h2><p>ילדים נוטים לשמוע בהם את הדאגה. טון רגוע וענייני עובד טוב יותר.</p></div>
+          </section>
+          <section class="tip">
+            <div class="pic sun"><svg viewBox="0 0 120 120" aria-hidden="true"><circle cx="40" cy="60" r="25" fill="#fff"/><circle cx="82" cy="60" r="25" fill="#fff"/><path transform="translate(40 61) scale(.36) translate(-60 -61)" d="M60 92C20 64 28 30 50 30c8 0 10 8 10 12 0-4 2-12 10-12 22 0 30 34-10 62z" fill="#ef289d"/><path transform="translate(82 59) scale(.52) translate(-60 -60)" d="M60.0 28.0 L69.1 49.5 L92.3 51.5 L74.7 66.8 L80.0 89.5 L60.0 77.5 L40.0 89.5 L45.3 66.8 L27.7 51.5 L50.9 49.5z" fill="#f58a1f" stroke="#f58a1f" stroke-width="6" stroke-linejoin="round"/></svg></div>
+            <div><h2>תנו להם לבחור.</h2><p>באיזו זרוע, על מה להסתכל, מה להביא איתם.</p></div>
+          </section>
+          <section class="tip">
+            <div class="pic"><svg viewBox="0 0 120 120" aria-hidden="true"><rect x="57.5" y="54" width="5" height="48" rx="2.5" fill="#3c2541"/><g class="spin"><path d="M60 54V22l24 20z" fill="#ef289d"/><path d="M60 54h32L72 78z" fill="#f58a1f"/><path d="M60 54v32L36 66z" fill="#39a49c"/><path d="M60 54H28l20-24z" fill="#f469ba"/></g><circle cx="60" cy="54" r="6" fill="#fff"/></svg></div>
+            <div><h2>נושמים יחד.</h2><p>שאיפה איטית פנימה, ואז נושפים החוצה, כמו על שבשבת או על נר.</p></div>
+          </section>
+          <section class="tip">
+            <div class="pic pink"><svg viewBox="0 0 120 120" aria-hidden="true"><path d="M60 94C18 65 26 28 49 28c8 0 11 8 11 13 0-5 3-13 11-13 23 0 31 37-11 66z" fill="#ef289d"/><path transform="translate(66 62) scale(.4) translate(-60 -61)" d="M60 94C18 65 26 28 49 28c8 0 11 8 11 13 0-5 3-13 11-13 23 0 31 37-11 66z" fill="#fff"/><path d="M38 44q4-8 12-8" stroke="#fff" stroke-width="5" fill="none" stroke-linecap="round" opacity=".7"/></svg></div>
+            <div><h2>חיבוק, לא החזקה בכוח.</h2><p>ישיבה זקופה על הברכיים שלכם מרגישה בטוחה יותר משכיבה או מהחזקה במקום.</p></div>
+          </section>
+          <section class="tip">
+            <div class="pic sun"><svg viewBox="0 0 120 120" aria-hidden="true"><path d="M60.0 28.0 L69.1 49.5 L92.3 51.5 L74.7 66.8 L80.0 89.5 L60.0 77.5 L40.0 89.5 L45.3 66.8 L27.7 51.5 L50.9 49.5z" fill="#fff" stroke="#fff" stroke-width="12" stroke-linejoin="round"/><circle cx="52" cy="58" r="3.6" fill="#3c2541"/><circle cx="68" cy="58" r="3.6" fill="#3c2541"/><path d="M53 66q7 6 14 0" stroke="#3c2541" stroke-width="3.6" fill="none" stroke-linecap="round"/><circle cx="46" cy="65" r="4" fill="#f294cf"/><circle cx="74" cy="65" r="4" fill="#f294cf"/></svg></div>
+            <div><h2>אחר כך, ספרו מה הלך טוב.</h2><p>„לקחת נשימה גדולה, וזה היה כל כך מהר.” את זה הם יזכרו בפעם הבאה.</p></div>
+          </section>
+          <section class="tip">
+            <div class="pic"><svg viewBox="0 0 120 120" aria-hidden="true"><circle cx="60" cy="60" r="34" fill="#fff"/><path d="M45 61l11 11 20-23" stroke="#39a49c" stroke-width="8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <div><h2>טוב לדעת</h2><p class="fine">מבוסס על מחקרים שפורסמו על פחד ממחטים אצל ילדים, ובהם שיטת CARD. זהו מידע כללי ולא ייעוץ רפואי: האחות או הרופא מכירים את הילד שלכם.</p><p class="legal">© 2026 Zizzlelab. כל הזכויות שמורות. הדמויות, האיורים, האנימציה, הצלילים והמילים בעמוד הזה שייכים ל‑Zizzlelab, ואין להעתיק, לשתף או להשתמש בהם ללא רשות בכתב.</p>
+            <p class="legal">העמוד הזה סופר ביקורים באופן אנונימי כדי לעזור לנו לשפר אותו: בלי שמות, בלי עוגיות, בלי שום דבר שמזהה אתכם או את הילד שלכם.</p></div>
+          </section>
+        </div></div>
+        <div class="nav">
+          <button class="arrow prev" type="button" aria-label="הטיפ הקודם">&lsaquo;</button>
+          <div class="dots"></div>
+          <button class="arrow next" type="button" aria-label="הטיפ הבא">&rsaquo;</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <audio id="say" src="media/intro.mp3" preload="auto"></audio>
+  <div id="wait"><i></i></div>
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
